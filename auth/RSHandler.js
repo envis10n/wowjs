@@ -58,10 +58,10 @@ module.exports.LogonChallenge = function(data, client){
                 var pwHash = accountd.sha_pass_hash;
                 client.Access = accountd.gmlevel;
                 client.AuthEngine = new AuthEngine();
-                client.AuthEngine.CalculateB(account, pwHash);
+                client.AuthEngine.CalculateX(accountd.username, pwHash);
                 var header = Buffer.from([AuthCMD.CMD_AUTH_LOGON_CHALLENGE, AccountState.LOGIN_OK, 0]);
                 var control = Buffer.from([1,7,32]);
-                var dataResponse = Buffer.concat([header, client.AuthEngine.B, control, client.AuthEngine.N, client.AuthEngine.Salt, client.AuthEngine.CrcSalt, Buffer.from([0])]);
+                var dataResponse = Buffer.concat([header, client.AuthEngine.PublicB, control, client.AuthEngine.N, client.AuthEngine.Salt, client.AuthEngine.CrcSalt, Buffer.from([0])]);
                 sLog.debug('User exists. Responding...');
                 sLog.debug('Response: '+dataResponse.length);
                 client.write(dataResponse);
@@ -81,7 +81,8 @@ module.exports.LogonProof = function(data, client){
     data.copy(a, 0, 1, 33);
     var m1 = Buffer.alloc(20);
     data.copy(m1, 0, 33, 53);
-    client.AuthEngine.CalculateM1(a);
+    client.AuthEngine.CalculateU(a);
+    client.AuthEngine.CalculateM1();
     var passCheck = true;
 
     console.log('Server M1: '+client.AuthEngine.M1.toString('base64'));
