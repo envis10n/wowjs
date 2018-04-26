@@ -46,7 +46,7 @@ class AuthEngine {
         const self = this;
         this.g = Buffer.from([7]);
         this.N = Buffer.from('894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7', 'hex');
-        this.Nb = bigi.fromHex('894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7');
+        this.Nb = bigi.fromBuffer(self.N);
         this.Salt = Buffer.from([173, 208, 58, 49, 210, 113, 20, 70, 117, 242, 112, 126, 80, 38, 182, 210, 241, 134, 89, 153, 118, 2, 80, 170, 185, 69, 224, 158, 221, 42, 163, 69]);
         this.k = Buffer.from([3]);
         this.b = crypto.randomBytes(20);
@@ -55,7 +55,7 @@ class AuthEngine {
     CalculateB(username, pwHash, cb){
         const self = this;
         self.username = username;
-        self.x = bigi.fromHex(crypto.createHash('sha1').update(self.Salt).update(pwHash).digest('hex'));
+        self.x = bigi.fromBuffer(crypto.createHash('sha1').update(self.Salt).update(pwHash).digest());
         var g = bigi.fromBuffer(self.g);
         var k = bigi.fromBuffer(self.k);
         var N = self.Nb;
@@ -72,7 +72,7 @@ class AuthEngine {
         var b = bigi.fromBuffer(self.b);
         self.A = A;
         self.An = bigi.fromBuffer(self.A);
-        self.u = bigi.fromHex(crypto.createHash('sha1').update(self.A).update(self.B).digest('hex'));
+        self.u = bigi.fromBuffer(crypto.createHash('sha1').update(self.A).update(self.B).digest());
         self.S = self.An.multiply(self.v.modPow(self.u, N)).modPow(b, N).toBuffer();
         var Hn = crypto.createHash('sha1').update(self.N).digest();
         var Hg = crypto.createHash('sha1').update(self.g).digest();
