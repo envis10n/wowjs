@@ -6,7 +6,6 @@ const LoginResponse = Enum.LoginResponse;
 var sLog = require('../shared/sLog');
 var db = require('../shared/Database');
 const AuthEngine = require('./AuthEngine');
-const srp = require('node-srp');
 
 const versions = [5875,6005,6141];
 
