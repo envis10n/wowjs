@@ -64,12 +64,6 @@ class AuthEngine {
         self.Bn = k.multiply(self.v).add(b).mod(N);
         self.B = self.Bn.toBuffer();
     };
-    CalculateM2(m1Loc){
-        const self = this;
-        var sha1 = crypto.createHash('sha1');
-        var buffer1 = Buffer.concat([self._a, m1Loc, self.SsHash]);
-        self.M2 = sha1.update(buffer1).digest();
-    };
     CalculateM1(A){
         const self = this;
         var g = bigi.fromBuffer(self.g);
