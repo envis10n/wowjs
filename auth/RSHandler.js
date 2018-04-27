@@ -58,10 +58,20 @@ module.exports.LogonChallenge = function(data, client){
                 var pwHash = accountd.sha_pass_hash;
                 client.Access = accountd.gmlevel;
                 client.AuthEngine = new AuthEngine();
-                client.AuthEngine.CalculateX(accountd.username, pwHash);
-                var header = Buffer.from([AuthCMD.CMD_AUTH_LOGON_CHALLENGE, AccountState.LOGIN_OK, 0]);
-                var control = Buffer.from([1,7,32]);
-                var dataResponse = Buffer.concat([header, client.AuthEngine.PublicB, control, client.AuthEngine.N, client.AuthEngine.Salt, client.AuthEngine.CrcSalt, Buffer.from([0])]);
+                client.AuthEngine.generate_v(accountd.username, pwHash);
+
+                var pos = 0;
+                var dataResponse = Buffer.alloc(119);
+                dataResponse.writeInt8(AuthCMD.CMD_AUTH_LOGON_CHALLENGE, pos, true); pos += 1;
+                dataResponse.writeInt16LE(AccountState.LOGIN_OK, pos, true); pos += 2;
+                client.AuthEngine.PublicB.copy(dataResponse, pos); pos += 32;
+                dataResponse.writeInt8(1, pos, true); pos += 1;
+                client.AuthEngine.g.copy(dataResponse, pos); pos += 1;
+                dataResponse.writeInt8(32, pos, true); pos += 1;
+                client.AuthEngine.N.copy(dataResponse, pos); pos += 32;
+                client.AuthEngine.Salt.copy(dataResponse, pos); pos += 32;
+                client.AuthEngine.CrcSalt.copy(dataResponse, pos); pos += 16;
+                dataResponse.writeInt8(0, pos, true);
                 sLog.debug('User exists. Responding...');
                 sLog.debug('Response: '+dataResponse.length);
                 client.write(dataResponse);
@@ -81,8 +91,8 @@ module.exports.LogonProof = function(data, client){
     data.copy(a, 0, 1, 33);
     var m1 = Buffer.alloc(20);
     data.copy(m1, 0, 33, 53);
-    client.AuthEngine.CalculateU(a);
-    client.AuthEngine.CalculateM1();
+    client.AuthEngine.generate_K(a);
+    client.AuthEngine.generate_M();
     var passCheck = true;
 
     console.log('Server M1: '+client.AuthEngine.M1.toString('base64'));

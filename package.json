@@ -10,6 +10,8 @@
   "license": "GPL-3.0",
   "dependencies": {
     "bigi": "^1.4.2",
+    "bigint-node": "^1.0.4",
+    "bignum": "^0.12.5",
     "buffertrim": "^1.0.0",
     "jsbn": "^1.1.0",
     "mongodb": "^3.0.7",
